@@ -9,4 +9,8 @@ export class UsersService {
   addUser() {
     return 'This action adds a new user';
   }
+
+  updated() {
+    return 'This action updates a user';
+  },
 }
