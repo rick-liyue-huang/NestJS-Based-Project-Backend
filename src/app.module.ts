@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import * as dotenv from 'dotenv';
@@ -9,9 +9,11 @@ import { Users } from './mode/entities/Users';
 import { Profiles } from './mode/entities/Profiles';
 import { Logs } from './mode/entities/Logs';
 import { Roles } from './mode/entities/Roles';
+import { LoggerModule } from 'nestjs-pino';
 
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -47,13 +49,41 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
           database: config.get<string>(ConfigEnum.DB_NAME),
           entities: [Users, Profiles, Logs, Roles],
           synchronize: config.get<boolean>(ConfigEnum.DB_SYNCHRONIZE),
-          logging: true, // ['error'],
+          logging: ['error', 'warn'],
+          // logging: false, // ['error'],
         } as TypeOrmModuleOptions;
+      },
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport:
+          process.env.NODE_ENV === 'development'
+            ? {
+                target: 'pino-pretty',
+                options: {
+                  level: 'info',
+                  prettyPrint: {
+                    colorize: true,
+                    translateTime: true,
+                  },
+                },
+              }
+            : {
+                target: 'pino-roll',
+                options: {
+                  level: 'info',
+                  rollingInterval: 86400000,
+                  logDirectory: 'logs',
+                  filename: 'app-%DATE%.log',
+                  dateFormat: 'YYYY-MM-DD',
+                },
+              },
       },
     }),
     UsersModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [Logger], // Logger is a built-in provider
+  exports: [Logger],
 })
 export class AppModule {}

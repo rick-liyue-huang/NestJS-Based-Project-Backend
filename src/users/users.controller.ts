@@ -1,21 +1,49 @@
-import { Controller, Delete, Get, Patch, Post, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  LoggerService,
+  Patch,
+  Post,
+  Req,
+  Res,
+  Logger,
+  // HttpException,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { UsersService } from './users.service';
 // import { ConfigService } from '@nestjs/config';
 // import { ConfigEnum } from 'src/enum/config.enum';
 import { Users } from 'src/mode/entities/Users';
+// import { Logger } from 'nestjs-pino';
 
 @Controller('users')
 export class UsersController {
+  // private logger = new Logger(UsersController.name); // should put here
   constructor(
     private usersService: UsersService,
     // private configService: ConfigService,
-  ) {}
+    // private logger: Logger,
+    @Inject(Logger) private readonly logger: LoggerService,
+  ) {
+    this.logger.log('UsersController created');
+  }
 
   @Get()
   getUsers() {
     // console.log(this.configService.get(ConfigEnum.DB_HOST));
     // console.log(this.configService.get(ConfigEnum.DB_PORT));
+    this.logger.log('getUsers');
+    this.logger.warn('getUsers');
+    this.logger.error('getUsers');
+    this.logger.debug('getUsers');
+    this.logger.verbose('getUsers');
+    // const user = { isAdmin: false };
+    // if (!user.isAdmin) {
+    //   throw new HttpException('User is not admin', 403);
+    // }
+
     return this.usersService.findAll();
   }
 
