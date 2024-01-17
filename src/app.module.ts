@@ -10,6 +10,7 @@ import { Profiles } from './mode/entities/Profiles';
 import { Logs } from './mode/entities/Logs';
 import { Roles } from './mode/entities/Roles';
 import { LoggerModule } from 'nestjs-pino';
+import ormconfig from '../ormconfig';
 
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
 
@@ -36,6 +37,8 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
         DB_SYNCHRONIZE: Joi.boolean().default(true),
       }),
     }),
+    TypeOrmModule.forRoot(ormconfig), // will use typeorm cli
+    /*
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -54,6 +57,7 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
         } as TypeOrmModuleOptions;
       },
     }),
+    */
     LoggerModule.forRoot({
       pinoHttp: {
         transport:
